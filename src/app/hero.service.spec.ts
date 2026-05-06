@@ -10,6 +10,7 @@ describe('HeroService', () => {
   let mockMessageService;
   let httpTestingController: HttpTestingController;
   let service: HeroService;
+  // let messageService: MessageService;
 
   beforeEach(() => {
     mockMessageService = jasmine.createSpyObj(['add']);
@@ -18,25 +19,26 @@ describe('HeroService', () => {
       imports: [HttpClientTestingModule],
       providers: [
         HeroService,
-        { provide: 'MessageService', useValue: mockMessageService },
+        { provide: MessageService, useValue: mockMessageService },
       ],
     });
 
-    // httpTestingController = TestBed.inject(HttpTestingController);
-    // let messageService = TestBed.inject(MessageService);
-    // service = TestBed.inject(HeroService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    // messageService = TestBed.inject(MessageService);
+    service = TestBed.inject(HeroService);
   });
 
   describe('getHero', () => {
-    it('should call get with the correct URL', inject(
-      [HeroService, HttpTestingController],
-       (service: HeroService, controller: HttpTestingController) => {
+    it('should call get with the correct URL', () => {
        //call getHero
-       service.getHero(4);
+       service.getHero(4).subscribe(hero => expect(hero.id).toEqual(4));
 
        //test that url was correct
-      //  controller.
-
-    }));
+       const req = httpTestingController.expectOne('api/heroes/4');
+       
+       req.flush({id: 4, name: 'SuperDude', strength: 100});
+       expect(req.request.method).toEqual('GET');
+       httpTestingController.verify();
+    });
   });
 });
