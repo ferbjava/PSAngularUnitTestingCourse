@@ -51,7 +51,7 @@ describe('HeroesComponent (deep tests)', () => {
   });
 
   it(`should call heroService.deleteHero when the Hero Component's 
-    delete button is clicked`, () => {
+    delete button is clicked: use direct call to the child method`, () => {
     spyOn(fixture.componentInstance, 'delete');
     mockHeroService.getHeroes.and.returnValue(of(HEROES));
 
@@ -59,7 +59,41 @@ describe('HeroesComponent (deep tests)', () => {
     fixture.detectChanges();
 
     const heroComponents = fixture.debugElement.queryAll(By.directive(HeroComponent));
-    heroComponents[0].query(By.css('button')).triggerEventHandler('focus', {stopPropagation: () => {}});
+    (<HeroComponent>heroComponents[0].componentInstance).delete.emit(undefined);
+
     expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+    });
+
+  it(`should call heroService.deleteHero when the Hero Component's 
+    delete button is clicked: trigger event to the parent`, () => {
+    spyOn(fixture.componentInstance, 'delete');
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    // run ngOnInit()
+    fixture.detectChanges();
+
+    const heroComponents = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    heroComponents[0].triggerEventHandler('delete', undefined);
+
+    expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+    });
+
+    it('should add new Hero to the Hero list when the add button is clicked', () => {
+      mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+      // run ngOnInit()
+      fixture.detectChanges();
+      const name = 'Mr. Ice';
+      mockHeroService.addHero.and.returnValue(of({ id: 5, name, strength: 4 }));
+
+      const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+      const addButton = fixture.debugElement.queryAll(By.css('button'))[0];
+      inputElement.value = name;
+      addButton.triggerEventHandler('click', null);
+      fixture.detectChanges();
+      
+      const heroText = fixture.debugElement.query(By.css('ul')).nativeElement.textContent;
+      expect(heroText).toContain(name);
+
     });
 });
