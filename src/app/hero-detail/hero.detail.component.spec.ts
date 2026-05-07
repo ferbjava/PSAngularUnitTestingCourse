@@ -43,6 +43,20 @@ describe('HeroDetailComponent', () => {
 
   it('should render hero name in a h2 tag', () => {
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('h2').textContent).toContain('SUPERDUDE');
+    expect(fixture.nativeElement.querySelector('h2').textContent).toContain(
+      'SUPERDUDE',
+    );
+  });
+
+  it('should call updateHero when save is called', (done) => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.save();
+
+    setTimeout(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();
+      done();
+    }, 300);
   });
 });
