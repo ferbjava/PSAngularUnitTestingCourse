@@ -3,6 +3,7 @@ import {
   fakeAsync,
   flush,
   TestBed,
+  waitForAsync,
 } from '@angular/core/testing';
 import { HeroDetailComponent } from './hero-detail.component';
 import { ActivatedRoute } from '@angular/router';
@@ -53,7 +54,7 @@ describe('HeroDetailComponent', () => {
     );
   });
 
-  it('should call updateHero when save is called', fakeAsync(() => {
+  it('should call updateHero when save is called (using fakeAsync)', fakeAsync(() => {
     mockHeroService.updateHero.and.returnValue(of({}));
     fixture.detectChanges();
 
@@ -61,5 +62,16 @@ describe('HeroDetailComponent', () => {
     flush();
 
     expect(mockHeroService.updateHero).toHaveBeenCalled();
+  }));
+
+  it('should call updateHero when save is called (using waitForAsync and Promise)', waitForAsync(() => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.save();
+    fixture.whenStable().then(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();  
+    });
+
   }));
 });
